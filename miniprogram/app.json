@@ -1,0 +1,39 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/reservation/reservation",
+    "pages/my-reservations/my-reservations",
+    "pages/success/success"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#1989fa",
+    "navigationBarTitleText": "预约系统",
+    "navigationBarTextStyle": "white"
+  },
+  "tabBar": {
+    "color": "#7A7E83",
+    "selectedColor": "#1989fa",
+    "backgroundColor": "#ffffff",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "images/home.png",
+        "selectedIconPath": "images/home-active.png"
+      },
+      {
+        "pagePath": "pages/my-reservations/my-reservations",
+        "text": "我的预约",
+        "iconPath": "images/order.png",
+        "selectedIconPath": "images/order-active.png"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "networkTimeout": {
+    "request": 10000,
+    "downloadFile": 10000
+  }
+}

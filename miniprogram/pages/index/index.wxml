@@ -1,0 +1,25 @@
+<view class="container">
+  <view class="banner">
+    <text class="banner-emoji">📅</text>
+    <text class="banner-title">在线预约系统</text>
+    <image src="/images/banner.png" mode="aspectFill" class="banner-img"/>
+  </view>
+  
+  <view class="service-intro">
+    <text class="title">预约服务</text>
+    <text class="desc">请填写您的身份信息和备注，我们将尽快为您安排预约</text>
+  </view>
+  
+  <button class="btn-primary" bindtap="goToReservation">
+    <text>📋 立即预约</text>
+  </button>
+  
+  <view class="notice">
+    <text class="notice-title">📌 预约须知</text>
+    <view class="notice-content">
+      <text>• 每人每天仅限预约一次</text>
+      <text>• 请如实填写身份信息</text>
+      <text>• 预约成功后会有专人联系您</text>
+    </view>
+  </view>
+</view>

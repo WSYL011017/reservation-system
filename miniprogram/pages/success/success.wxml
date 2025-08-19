@@ -1,0 +1,29 @@
+<view class="container">
+  <view class="success-icon">
+    <text class="icon-success">✅</text>
+  </view>
+  
+  <text class="success-title">预约成功！</text>
+  <text class="success-desc">您的预约已提交，我们会尽快处理</text>
+  
+  <view class="reservation-info">
+    <text class="info-title">📋 预约信息</text>
+    <view class="info-item">
+      <text class="label">预约编号：</text>
+      <text class="value">{{reservationId}}</text>
+    </view>
+    <view class="info-item">
+      <text class="label">预约时间：</text>
+      <text class="value">{{reservation.date}} {{reservation.time}}</text>
+    </view>
+  </view>
+  
+  <view class="buttons">
+    <button class="btn-primary" bindtap="goToMyReservations">
+      <text>📋 查看我的预约</text>
+    </button>
+    <button class="btn-secondary" bindtap="goToHome">
+      <text>🏠 返回首页</text>
+    </button>
+  </view>
+</view>

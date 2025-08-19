@@ -1,0 +1,5 @@
+# 忽略编译生成的文件
+project.private.config.json
+node_modules/
+dist/
+miniprogram/miniprogram_npm/

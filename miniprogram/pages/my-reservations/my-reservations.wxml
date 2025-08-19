@@ -1,0 +1,61 @@
+<view class="container">
+  <view wx:if="{{loading}}" class="loading">
+    <text>加载中...</text>
+  </view>
+  
+  <view wx:elif="{{reservations.length === 0}}" class="empty">
+    <image src="/images/empty.png" mode="aspectFit"></image>
+    <text>暂无预约记录</text>
+    <button class="add-btn" bindtap="goToReservation">立即预约</button>
+  </view>
+  
+  <view wx:else class="reservation-list">
+    <view class="list-header">
+      <text>共 {{reservations.length}} 条预约</text>
+    </view>
+    
+    <view class="reservation-item" wx:for="{{reservations}}" wx:key="_id" wx:for-item="item">
+      <view class="item-header">
+        <text class="name">{{item.name}}</text>
+        <text class="status {{item.status}}">{{item.statusText}}</text>
+      </view>
+      
+      <view class="item-content">
+        <view class="info-row">
+          <text class="label">预约日期：</text>
+          <text class="value">{{item.date}}</text>
+        </view>
+        <view class="info-row">
+          <text class="label">预约时间：</text>
+          <text class="value">{{item.time}}</text>
+        </view>
+        <view class="info-row">
+          <text class="label">手机号码：</text>
+          <text class="value">{{item.phone}}</text>
+        </view>
+        <view class="info-row" wx:if="{{item.idCard}}">
+          <text class="label">身份证号：</text>
+          <text class="value">{{item.idCard}}</text>
+        </view>
+        <view class="info-row" wx:if="{{item.remark}}">
+          <text class="label">备注信息：</text>
+          <text class="value">{{item.remark}}</text>
+        </view>
+        <view class="info-row">
+          <text class="label">创建时间：</text>
+          <text class="value">{{item.createTime}}</text>
+        </view>
+      </view>
+      
+      <view class="item-actions">
+        <button wx:if="{{item.status === 'pending'}}" 
+                class="btn-cancel" 
+                data-id="{{item._id}}" 
+                data-index="{{index}}"
+                bindtap="cancelReservation">
+          取消预约
+        </button>
+      </view>
+    </view>
+  </view>
+</view>
