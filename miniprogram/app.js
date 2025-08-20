@@ -1,8 +1,14 @@
 App({
   onLaunch() {
     // 配置API基础URL - 完全使用自建后端
-    this.globalData.apiBase = 'http://localhost:5000/api';
-    
+    //this.globalData.apiBase = 'http://localhost:5000/api';
+    wx.login({
+      success: (res) => {
+        wx.request({
+          url: '/getcode',
+        })
+      },
+    })
     // 获取用户信息
     this.getUserInfo();
   },

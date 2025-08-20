@@ -1,7 +1,7 @@
--- -- 预约系统数据库结构
--- CREATE DATABASE IF NOT EXISTS reservation_system CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- 预约系统数据库结构
+CREATE DATABASE IF NOT EXISTS reservation_system CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- USE reservation_system;
+USE reservation_system;
 
 -- 用户表
 CREATE TABLE IF NOT EXISTS users (
