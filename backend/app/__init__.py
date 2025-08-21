@@ -52,9 +52,10 @@ def register_blueprints(app):
 
     
     # 注册蓝图
-    app.register_blueprint(main_blueprint)
-    app.register_blueprint(auth_blueprint, url_prefix='/auth')
-    app.register_blueprint(api_blueprint, url_prefix='/api')
+    app.register_blueprint(main_blueprint,url_prefix='/reservations')
+    app.register_blueprint(auth_blueprint, url_prefix='/reservations/auth')
+    app.register_blueprint(api_blueprint, url_prefix='/reservations/api')
+
 
 def register_error_handlers(app):
     """注册错误处理函数"""

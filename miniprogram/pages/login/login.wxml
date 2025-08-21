@@ -1,0 +1,66 @@
+<!--pages/login/login.wxml-->
+<view class="login-container">
+  <view class="login-header">
+    <view class="logo-wrapper">
+      <image class="logo" src="/images/banner.png" mode="aspectFit"></image>
+    </view>
+    <view class="app-name">智能预约系统</view>
+    <view class="slogan">便捷预约，智慧生活</view>
+  </view>
+
+  <view class="login-content">
+    <view class="feature-list">
+      <view class="feature-item">
+        <text class="feature-icon">✓</text>
+        <text class="feature-text">快速预约服务</text>
+      </view>
+      <view class="feature-item">
+        <text class="feature-icon">✓</text>
+        <text class="feature-text">查看预约记录</text>
+      </view>
+      <view class="feature-item">
+        <text class="feature-icon">✓</text>
+        <text class="feature-text">智能提醒服务</text>
+      </view>
+    </view>
+
+    <button 
+      class="login-btn {{canIUseGetUserProfile ? 'primary' : ''}}"
+      bindtap="handleLogin"
+      disabled="{{isLoggingIn}}"
+    >
+      <text wx:if="{{!isLoggingIn}}">微信一键登录</text>
+      <text wx:else>登录中...</text>
+    </button>
+
+    <view class="agreement-wrapper">
+      <checkbox-group bindchange="handleAgreementChange">
+        <label class="checkbox-label">
+          <checkbox value="agreed" checked="{{hasAgreed}}" color="#07c160"/>
+          <text class="agreement-text">我已阅读并同意</text>
+        </label>
+      </checkbox-group>
+      <view class="agreement-links">
+        <text class="link" bindtap="showUserAgreement">《用户协议》</text>
+        <text class="separator">和</text>
+        <text class="link" bindtap="showPrivacyPolicy">《隐私政策》</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 用户协议弹窗 -->
+  <view class="modal {{showAgreementModal ? 'show' : ''}}" bindtap="hideModal">
+    <view class="modal-content" catchtap="preventBubble">
+      <view class="modal-header">
+        <text class="modal-title">{{modalTitle}}</text>
+        <text class="modal-close" bindtap="hideModal">×</text>
+      </view>
+      <scroll-view class="modal-body" scroll-y>
+        <rich-text nodes="{{modalContent}}"></rich-text>
+      </scroll-view>
+      <view class="modal-footer">
+        <button class="modal-btn" bindtap="hideModal">我知道了</button>
+      </view>
+    </view>
+  </view>
+</view>

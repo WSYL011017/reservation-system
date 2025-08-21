@@ -35,3 +35,11 @@ class User(UserMixin,db.Model):
             'email': self.email,
             'created_at': self.created_at.isoformat()
         }
+    def create_user(self, openid, nickname, avatar_url):
+        self.openid = openid
+        self.nickname = nickname
+        self.avatar_url = avatar_url
+        db.session.add(self)
+        db.session.commit()
+        return self
+

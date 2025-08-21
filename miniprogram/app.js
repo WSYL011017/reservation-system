@@ -1,23 +1,49 @@
 App({
   onLaunch() {
     // 配置API基础URL - 完全使用自建后端
-    //this.globalData.apiBase = 'http://localhost:5000/api';
+    // this.globalData.apiBase = 'http://localhost:5000/api';
     wx.login({
       success: (res) => {
-        wx.request({
-          url: '/getcode',
-        })
+        if (res.code) {
+          //发起网络请求
+          wx.request({
+            url: this.globalData.apiBase + '/getcode',
+            header: {
+              'Content-Type': 'application/json'
+            },
+            method: 'POST',
+            data: {
+              code: res.code
+            },
+            success: res => {
+              if (res.data.openid) {
+                console.log('成功获取openid:', res.data.openid); // 成功获取到openid
+                wx.setStorage(
+                  {
+                    key: 'token',
+                    data: res.data
+                  }
+                )
+              } else {
+                console.error('获取openid失败:', res.data.errmsg); // 没有获取到openid，返回错误信息
+              }
+            },
+            fail: err => {
+              console.error('请求失败:', err.errMsg); // 请求失败，返回错误信息
+            }
+          })
+        } else {
+          console.log('登录失败！' + res.errMsg)
+        }
       },
     })
-    // 获取用户信息
-    this.getUserInfo();
   },
-  
+
   globalData: {
     userInfo: null,
-    apiBase: 'http://localhost:5000/api'
+    apiBase: 'https://17b2b141.r3.cpolar.cn'
   },
-  
+
   // 通用请求方法 - 连接自建后端
   request(options) {
     return new Promise((resolve, reject) => {
@@ -48,16 +74,6 @@ App({
           reject(err);
         }
       });
-    });
-  },
-  
-  getUserInfo() {
-    wx.getUserProfile({
-      desc: '用于完善会员资料',
-      success: (res) => {
-        this.globalData.userInfo = res.userInfo;
-        wx.setStorageSync('userInfo', res.userInfo);
-      }
     });
   }
 });

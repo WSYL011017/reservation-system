@@ -21,32 +21,6 @@ Page({
     // 从本地存储获取手机号
     const phone = wx.getStorageSync('userPhone') || '';
     this.setData({ phone });
-    
-    if (phone) {
-      this.loadReservations();
-    } else {
-      this.showPhoneInput();
-    }
-  },
-  
-  showPhoneInput() {
-    wx.showModal({
-      title: '请输入手机号',
-      content: '用于查询您的预约记录',
-      editable: true,
-      placeholderText: '请输入11位手机号',
-      success: (res) => {
-        if (res.confirm && res.content) {
-          if (/^1[3-9]\d{9}$/.test(res.content)) {
-            this.setData({ phone: res.content });
-            wx.setStorageSync('userPhone', res.content);
-            this.loadReservations();
-          } else {
-            wx.showToast({ title: '手机号格式错误', icon: 'none' });
-          }
-        }
-      }
-    });
   },
   
   // 加载用户预约数据
