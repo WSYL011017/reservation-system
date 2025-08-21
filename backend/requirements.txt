@@ -26,3 +26,46 @@ bcrypt              # 密码哈希
 gunicorn            # 生产环境WSGI服务器
 # Windows
 waitress            # 生产环境WSGI服务器
+
+
+
+
+
+
+## Flask应用配置
+#FLASK_APP=run.py
+#FLASK_CONFIG=production
+#SECRET_KEY=0a9af46f1ff3b69f9791ab71f2a1966a684f3d133c70de8809fba5a0606a99c8
+#
+## 数据库配置 - MySQL
+#DEV_DATABASE_URL=mysql+pymysql://root:Suyala1017..@39.103.56.52/reservation_system
+#TEST_DATABASE_URL=mysql+pymysql://root:Suyala1017..@39.103.56.52/reservation_system
+#DATABASE_URL=mysql://root:Suyala1017..@39.103.56.52/reservation_system
+#
+## 主库（写操作）- Master
+#MASTER_DATABASE_URL=mysql://root:Suyala1017..@39.103.56.52:3306/reservation_system
+## 从库（读操作）- Slave（可配置多个，用逗号分隔）
+#SLAVE_DATABASE_URLS=mysql://root:Suyala1017..@117.72.103.224:3306/reservation_system
+#
+## 邮件配置
+#MAIL_SERVER=smtp.qq.com
+#MAIL_PORT=587
+#MAIL_USE_TLS=true
+#MAIL_USERNAME=2992790671@qq.com
+#MAIL_PASSWORD=suyala1017..
+#
+#PORT=5000
+#DEBUG=True
+#
+#
+#
+## flask db init      # 初始化迁移环境
+## flask db migrate -m "initial migration"  # 创建迁移脚本
+## flask db upgrade   # 应用迁移
+#
+## 开发环境：flask run 或 python run.py
+## 生产环境：gunicorn wsgi:app
+## 基本测试：flask test
+## 带覆盖率报告：flask cov
+#
+## pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
