@@ -9,7 +9,7 @@ Page({
     showAgreementModal: false,
     modalTitle: '',
     modalContent: '',
-    
+
     // 用户协议内容
     userAgreementContent: `
       <h3>用户协议</h3>
@@ -36,7 +36,7 @@ Page({
       <p>5.1 我们有权根据业务发展需要修改本协议。</p>
       <p>5.2 修改后的协议将在本页面公布，公布后即生效。</p>
     `,
-    
+
     // 隐私政策内容
     privacyPolicyContent: `
       <h3>隐私政策</h3>
@@ -80,7 +80,6 @@ Page({
       <p>如有任何疑问，请联系我们：support@example.com</p>
     `
   },
-
   onLoad() {
     // 检查是否支持getUserProfile
     if (wx.getUserProfile) {
@@ -88,14 +87,12 @@ Page({
         canIUseGetUserProfile: true
       })
     }
-    
     // 检查是否已同意协议
     const hasAgreed = wx.getStorageSync('hasAgreedAgreement') || false;
     this.setData({
       hasAgreed: hasAgreed
     });
   },
-
   // 处理协议勾选
   handleAgreementChange(e) {
     const hasAgreed = e.detail.value.includes('agreed');
@@ -104,7 +101,6 @@ Page({
     });
     wx.setStorageSync('hasAgreedAgreement', hasAgreed);
   },
-
   // 显示用户协议
   showUserAgreement() {
     this.setData({
@@ -113,7 +109,6 @@ Page({
       modalContent: this.data.userAgreementContent
     });
   },
-
   // 显示隐私政策
   showPrivacyPolicy() {
     this.setData({
@@ -122,21 +117,18 @@ Page({
       modalContent: this.data.privacyPolicyContent
     });
   },
-
   // 隐藏弹窗
   hideModal() {
     this.setData({
       showAgreementModal: false
     });
   },
-
   // 阻止冒泡
   preventBubble() {
     // 空函数，用于阻止事件冒泡
   },
-
   // 处理登录
-  handleLogin() {
+  getPhoneNumber(e) {
     if (!this.data.hasAgreed) {
       wx.showToast({
         title: '请先阅读并同意用户协议和隐私政策',
@@ -145,19 +137,39 @@ Page({
       });
       return;
     }
-
     if (this.data.isLoggingIn) return;
-
     this.setData({
       isLoggingIn: true
     });
-
-    if (this.data.canIUseGetUserProfile) {
-      // 使用getUserProfile获取用户信息
-      wx.getUserProfile({
-        desc: '用于完善用户资料',
-        success: (res) => {
-          this.handleLoginSuccess(res.userInfo);
+    let msg = e.detail.errMsg
+    msg = msg.split(':')[1]
+    console.log('getPhoneNumber:', msg);
+    if (msg === 'ok') {
+      wx.request({
+        url: app.globalData.apiBase + '/getPhoneNumber',
+        method: 'POST',
+        data: {
+          'token': wx.getStorageSync('token'),
+          'code': e.detail.code
+        },
+        success: res => {
+          if (res.data.errcode === 0) {
+            console.log('手机号码获取成功！');
+            wx.setStorageSync('phoneNumber', res.data.phone_info.phoneNumber)
+            this.goToUserInfo()
+          } else {
+            wx.showModal({
+              title: '错误',
+              content: '手机号码获取异常，请联系管理员反馈！',
+              showCancel: false,
+              success: res => {
+                if (res.confirm) {
+                  this.goToUserInfo()
+                }
+              }
+            })
+          }
+          console.log('res:', res.data);
         },
         fail: (err) => {
           console.log('用户拒绝授权：', err);
@@ -170,94 +182,24 @@ Page({
             isLoggingIn: false
           });
         }
-      });
+      })
     } else {
-      // 兼容旧版本
-      wx.getUserInfo({
-        success: (res) => {
-          this.handleLoginSuccess(res.userInfo);
-        },
-        fail: (err) => {
-          console.log('用户拒绝授权：', err);
-          wx.showToast({
-            title: '需要授权才能使用完整功能',
-            icon: 'none',
-            duration: 2000
-          });
-          this.setData({
-            isLoggingIn: false
-          });
+      console.log(e.detail.errMsg)
+      wx.showModal({
+        title: '错误',
+        content: '程序没有获取用户手机号码资格，请联系管理员反馈！',
+        showCancel: false,
+        success: res => {
+          if (res.confirm) {
+            this.goToUserInfo()
+          }
         }
-      });
+      })
     }
   },
-
-  // 处理登录成功
-  handleLoginSuccess(userInfo) {
-    // 保存用户信息到全局和本地存储
-    app.globalData.userInfo = userInfo;
-    wx.setStorageSync('userInfo', userInfo);
-
-    // 获取code并发送到后端
-    wx.login({
-      success: (loginRes) => {
-        if (loginRes.code) {
-          wx.request({
-            url: app.globalData.apiBase + '/login',
-            method: 'POST',
-            data: {
-              code: loginRes.code,
-              userInfo: userInfo
-            },
-            success: (res) => {
-              if (res.data.openid) {
-                // 保存登录态
-                wx.setStorageSync('token', res.data);
-                
-                wx.showToast({
-                  title: '登录成功',
-                  icon: 'success',
-                  duration: 1000
-                });
-
-                // 延迟跳转
-                setTimeout(() => {
-                  const pages = getCurrentPages();
-                  if (pages.length > 1) {
-                    wx.navigateBack({
-                      delta: 1
-                    });
-                  } else {
-                    wx.switchTab({
-                      url: '/pages/index/index'
-                    });
-                  }
-                }, 1000);
-              }
-            },
-            fail: () => {
-              wx.showToast({
-                title: '网络错误，请重试',
-                icon: 'none'
-              });
-            },
-            complete: () => {
-              this.setData({
-                isLoggingIn: false
-              });
-            }
-          });
-        }
-      },
-      fail: () => {
-        wx.showToast({
-          title: '获取登录凭证失败',
-          icon: 'none'
-        });
-        this.setData({
-          isLoggingIn: false
-        });
-      }
-    });
+  goToUserInfo() {
+    wx.navigateTo({
+      url: '/pages/userInfo/userInfo'
+    })
   }
 });

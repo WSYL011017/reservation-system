@@ -24,9 +24,10 @@
       </view>
     </view>
 
-    <button 
+    <!-- bindtap="handleLogin" -->
+    <button open-type="getPhoneNumber"
       class="login-btn {{canIUseGetUserProfile ? 'primary' : ''}}"
-      bindtap="handleLogin"
+      bindgetphonenumber="getPhoneNumber"
       disabled="{{isLoggingIn}}"
     >
       <text wx:if="{{!isLoggingIn}}">微信一键登录</text>

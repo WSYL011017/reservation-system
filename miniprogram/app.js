@@ -16,6 +16,7 @@ App({
               code: res.code
             },
             success: res => {
+              console.log('res',res.data);
               if (res.data.openid) {
                 console.log('成功获取openid:', res.data.openid); // 成功获取到openid
                 wx.setStorage(
@@ -41,7 +42,7 @@ App({
 
   globalData: {
     userInfo: null,
-    apiBase: 'https://17b2b141.r3.cpolar.cn'
+    apiBase: 'https://cool-correctly-monitor.ngrok-free.app/reservations'
   },
 
   // 通用请求方法 - 连接自建后端

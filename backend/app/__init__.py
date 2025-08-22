@@ -59,10 +59,34 @@ def register_blueprints(app):
 
 def register_error_handlers(app):
     """注册错误处理函数"""
-    @app.errorhandler(404)
-    def handle_404(error):
-        return {"error": "Not found"}, 404
+    
+    @app.errorhandler(405)
+    def handle_405(error):
+        return {"error": "Method not allowed","message":str(error)}, 405
     
     @app.errorhandler(500)
     def handle_500(error):
-        return {"error": "Internal server error"}, 500
+        return {"error": "Internal server error","message":str(error)}, 500
+    
+    @app.errorhandler(400)
+    def handle_400(error):
+        return {"error": "Bad request","message":str(error)}, 400
+    
+    @app.errorhandler(401)
+    def handle_401(error):
+        return {"error": "Unauthorized","message":str(error)}, 401
+    
+    @app.errorhandler(403)
+    def handle_403(error):
+        return {"error": "Forbidden","message":str(error)}, 403
+    
+    @app.errorhandler(409)
+    def handle_409(error):
+        return {"error": "Conflict","message":str(error)}, 409
+    
+    @app.errorhandler(404)
+    def handle_404(error):
+        return {"error": "Not found","message":str(error)}, 404
+
+
+

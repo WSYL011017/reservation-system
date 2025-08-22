@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 import requests
 import os
 from dotenv import load_dotenv
+from requests.api import head
 from app.models.users import User
 
 
@@ -24,16 +25,26 @@ def getcode():
     url = f'https://api.weixin.qq.com/sns/jscode2session?appid={WEIXIN_APPID}&secret={WEIXIN_APPSECRET}&js_code={code}&grant_type=authorization_code'
     response = requests.get(url)
     print(response.json())
-    session_key = response.json()['session_key']
-    openid = response.json()['openid']
-
-    user = User.query.filter_by(openid=openid).one_or_none()
-    if user is None:
-        User.create_user()
-        
+    getaccess_token = f'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={WEIXIN_APPID}&secret={WEIXIN_APPSECRET}'
+    res = requests.get(url=getaccess_token)
+    resbody = response.json()
+    resbody.update(res.json())
+    return jsonify(resbody)
 
 
 
-    return jsonify(response.json())
+@bp.route('/getPhoneNumber', methods=['POST'])
+def getPhoneNumber():
+    body = request.get_json()
+    ACCESS_TOKEN = body['token']['access_token']
+    url = f'https://api.weixin.qq.com/wxa/business/getuserphonenumber?access_token={ACCESS_TOKEN}'
+    print(url)
+    data = {
+        "code": body['code']
+    }
+    print(data)
+    res = requests.post(url=url, json=data,headers={'Content-Type': 'application/json'})
+    print(res.json())
+    return jsonify(res.json())
 
 
