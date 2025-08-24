@@ -1,69 +1,106 @@
+// pages/my-reservations/my-reservations.js
 const app = getApp();
+const defaultAvatarUrl = 'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0'
 
 Page({
   data: {
-    reservations: [],
     loading: true,
-    phone: ''
+    reservations: [],
+    userInfo: {
+      avatarUrl: defaultAvatarUrl,
+      nickName: ''
+    }
   },
-  
-  onLoad() {
-    this.getUserPhone();
+
+  onLoad(options) {
+    // 页面加载时获取用户信息
+    this.getUserInfoFromStorage();
+    this.loadReservations();
   },
-  
+
   onShow() {
-    if (this.data.phone) {
-      this.loadReservations();
-    }
+    // 每次显示页面时刷新数据
+    this.loadReservations();
   },
-  
-  getUserPhone() {
-    // 从本地存储获取手机号
-    const phone = wx.getStorageSync('userPhone') || '';
-    this.setData({ phone });
+
+  // 从本地存储获取用户信息
+  getUserInfoFromStorage() {
+    const userInfo = wx.getStorageSync('userInfo') || {};
+    this.setData({
+      userInfo: {
+        avatarUrl: userInfo.avatarUrl || '',
+        nickName: userInfo.nickName || ''
+      }
+    });
   },
-  
-  // 加载用户预约数据
+
+  // 获取微信用户信息
+  getUserProfile() {
+    wx.getUserProfile({
+      desc: '用于完善用户资料',
+      success: (res) => {
+        const userInfo = res.userInfo;
+        console.log('获取用户信息成功:', userInfo);
+        
+        // 保存到本地存储
+        wx.setStorageSync('userInfo', {
+          avatarUrl: userInfo.avatarUrl,
+          nickName: userInfo.nickName
+        });
+        
+        // 更新页面数据
+        this.setData({
+          userInfo: {
+            avatarUrl: userInfo.avatarUrl,
+            nickName: userInfo.nickName
+          }
+        });
+        
+        wx.showToast({
+          title: '获取成功',
+          icon: 'success',
+          duration: 1500
+        });
+      },
+      fail: (err) => {
+        console.log('获取用户信息失败:', err);
+        wx.showToast({
+          title: '获取失败',
+          icon: 'none',
+          duration: 2000
+        });
+      }
+    });
+  },
+
+  // 加载预约列表
   async loadReservations() {
-    if (!this.data.phone) {
-      this.setData({ loading: false });
-      return;
-    }
-    
-    this.setData({ loading: true });
-    
     try {
-      const res = await app.request({ 
-        url: '/reservations',
-        data: { phone: this.data.phone }
-      });
+      this.setData({ loading: true });
       
-      const reservations = res.data.map(item => ({
+      // 这里添加你的预约列表加载逻辑
+      // 示例：从本地存储获取预约数据
+      const reservations = wx.getStorageSync('reservations') || [];
+      
+      // 格式化状态文本
+      const formattedReservations = reservations.map(item => ({
         ...item,
         statusText: this.getStatusText(item.status),
-        date: item.service_date,
-        time: item.service_time,
-        name: item.customer_name,
-        phone: item.customer_phone
+        createTime: this.formatDate(item.createTime)
       }));
       
       this.setData({
-        reservations,
+        reservations: formattedReservations,
         loading: false
       });
       
-      wx.stopPullDownRefresh();
     } catch (error) {
-      console.error('获取预约数据失败:', error);
+      console.error('加载预约列表失败:', error);
       this.setData({ loading: false });
-      wx.showToast({
-        title: '获取数据失败',
-        icon: 'none'
-      });
     }
   },
-  
-  // 状态文本转换
+
+  // 获取状态文本
   getStatusText(status) {
     const statusMap = {
       'pending': '待确认',
@@ -73,40 +110,55 @@ Page({
     };
     return statusMap[status] || status;
   },
-  
+
+  // 格式化日期
+  formatDate(dateStr) {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+  },
+
+  // 跳转到预约页面
+  goToReservation() {
+    wx.navigateTo({
+      url: '/pages/reservation/reservation'
+    });
+  },
+
   // 取消预约
-  async cancelReservation(e) {
-    const { id } = e.currentTarget.dataset;
+  cancelReservation(e) {
+    const id = e.currentTarget.dataset.id;
+    const index = e.currentTarget.dataset.index;
     
     wx.showModal({
-      title: '确认取消',
-      content: '确定要取消这个预约吗？',
-      success: async (res) => {
+      title: '提示',
+      content: '确定要取消这条预约吗？',
+      success: (res) => {
         if (res.confirm) {
-          try {
-            await app.request({
-              url: `/reservations/${id}/cancel`,
-              method: 'PUT',
-              data: { phone: this.data.phone }
-            });
-            
-            wx.showToast({ title: '取消成功' });
-            this.loadReservations();
-          } catch (error) {
-            wx.showToast({ title: '取消失败', icon: 'none' });
-          }
+          // 这里添加取消预约的逻辑
+          const reservations = [...this.data.reservations];
+          reservations[index].status = 'cancelled';
+          reservations[index].statusText = '已取消';
+          
+          // 更新本地存储
+          wx.setStorageSync('reservations', reservations);
+          
+          this.setData({
+            reservations: reservations
+          });
+          
+          wx.showToast({
+            title: '取消成功',
+            icon: 'success'
+          });
         }
       }
     });
   },
-  
+
   // 下拉刷新
   onPullDownRefresh() {
     this.loadReservations();
-  },
-  
-  // 跳转到预约页面
-  goToReservation() {
-    wx.navigateTo({ url: '/pages/reservation/reservation' });
+    wx.stopPullDownRefresh();
   }
 });

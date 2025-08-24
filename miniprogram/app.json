@@ -4,8 +4,7 @@
     "pages/reservation/reservation",
     "pages/my-reservations/my-reservations",
     "pages/success/success",
-    "pages/login/login",
-    "pages/userInfo/userInfo"
+    "pages/login/login"
   ],
   "window": {
     "backgroundTextStyle": "light",

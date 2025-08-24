@@ -24,20 +24,20 @@
       </view>
     </view>
 
+    <button class="login-btn {{canIUseGetUserProfile ? 'primary' : ''}}" bindtap="handleLoginTap" wx:if="{{!hasAgreed}}">
+      <text>微信一键登录</text>
+    </button>
     <!-- bindtap="handleLogin" -->
-    <button open-type="getPhoneNumber"
-      class="login-btn {{canIUseGetUserProfile ? 'primary' : ''}}"
-      bindgetphonenumber="getPhoneNumber"
-      disabled="{{isLoggingIn}}"
-    >
+    <button open-type="getPhoneNumber" wx:else class="login-btn {{canIUseGetUserProfile ? 'primary' : ''}}" bindgetphonenumber="getPhoneNumber" disabled="{{isLoggingIn}}">
       <text wx:if="{{!isLoggingIn}}">微信一键登录</text>
       <text wx:else>登录中...</text>
     </button>
 
+
     <view class="agreement-wrapper">
       <checkbox-group bindchange="handleAgreementChange">
         <label class="checkbox-label">
-          <checkbox value="agreed" checked="{{hasAgreed}}" color="#07c160"/>
+          <checkbox value="agreed" checked="{{hasAgreed}}" color="#07c160" />
           <text class="agreement-text">我已阅读并同意</text>
         </label>
       </checkbox-group>

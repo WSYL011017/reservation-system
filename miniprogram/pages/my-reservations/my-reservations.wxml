@@ -1,4 +1,16 @@
+<!-- pages/my-reservations/my-reservations.wxml -->
 <view class="container">
+  <!-- 用户信息区域 -->
+  <view class="user-info-section">
+    <view class="user-avatar" bindtap="getUserProfile">
+      <image class="avatar-img" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
+    </view>
+    <view class="user-details">
+      <text class="user-name">{{userInfo.nickName || '点击获取昵称'}}</text>
+      <text class="user-tip">点击头像获取微信信息</text>
+    </view>
+  </view>
+
   <view wx:if="{{loading}}" class="loading">
     <text>加载中...</text>
   </view>

@@ -9,6 +9,7 @@ Page({
     showAgreementModal: false,
     modalTitle: '',
     modalContent: '',
+    agree: 'agree',
 
     // 用户协议内容
     userAgreementContent: `
@@ -81,12 +82,6 @@ Page({
     `
   },
   onLoad() {
-    // 检查是否支持getUserProfile
-    if (wx.getUserProfile) {
-      this.setData({
-        canIUseGetUserProfile: true
-      })
-    }
     // 检查是否已同意协议
     const hasAgreed = wx.getStorageSync('hasAgreedAgreement') || false;
     this.setData({
@@ -127,79 +122,90 @@ Page({
   preventBubble() {
     // 空函数，用于阻止事件冒泡
   },
-  // 处理登录
-  getPhoneNumber(e) {
-    if (!this.data.hasAgreed) {
+  // 事件拦截处理 - 关键函数
+  handleLoginTap() {
+    const { hasAgreed } = this.data;
+    if (!hasAgreed) {
+      // 提示用户
       wx.showToast({
-        title: '请先阅读并同意用户协议和隐私政策',
+        title: '请先同意用户协议和隐私政策',
         icon: 'none',
         duration: 2000
       });
-      return;
-    }
-    if (this.data.isLoggingIn) return;
-    this.setData({
-      isLoggingIn: true
-    });
-    let msg = e.detail.errMsg
-    msg = msg.split(':')[1]
-    console.log('getPhoneNumber:', msg);
-    if (msg === 'ok') {
-      wx.request({
-        url: app.globalData.apiBase + '/getPhoneNumber',
-        method: 'POST',
-        data: {
-          'token': wx.getStorageSync('token'),
-          'code': e.detail.code
-        },
-        success: res => {
-          if (res.data.errcode === 0) {
-            console.log('手机号码获取成功！');
-            wx.setStorageSync('phoneNumber', res.data.phone_info.phoneNumber)
-            this.goToUserInfo()
-          } else {
-            wx.showModal({
-              title: '错误',
-              content: '手机号码获取异常，请联系管理员反馈！',
-              showCancel: false,
-              success: res => {
-                if (res.confirm) {
-                  this.goToUserInfo()
-                }
-              }
-            })
-          }
-          console.log('res:', res.data);
-        },
-        fail: (err) => {
-          console.log('用户拒绝授权：', err);
-          wx.showToast({
-            title: '需要授权才能使用完整功能',
-            icon: 'none',
-            duration: 2000
-          });
-          this.setData({
-            isLoggingIn: false
-          });
-        }
-      })
-    } else {
-      console.log(e.detail.errMsg)
-      wx.showModal({
-        title: '错误',
-        content: '程序没有获取用户手机号码资格，请联系管理员反馈！',
-        showCancel: false,
-        success: res => {
-          if (res.confirm) {
-            this.goToUserInfo()
-          }
-        }
-      })
     }
   },
-  goToUserInfo() {
-    wx.navigateTo({
-      url: '/pages/userInfo/userInfo'
+  // 处理登录 - 修复异步顺序问题
+  async getPhoneNumber(e) {
+    this.setData({ isLoggingIn: true });
+    
+    try {
+      const msg = e.detail.errMsg.split(':')[1];
+      
+      if (e.detail.errMsg === 'getPhoneNumber:fail user deny') {
+        wx.showToast({
+          title: '您已取消授权',
+          icon: 'none',
+          duration: 2000
+        });
+        return;
+      }
+
+      console.log('开始获取手机号流程...');
+      
+      // 关键修复：等待 token 获取完成
+      const token = await app.ensureToken();
+      console.log('获取到token:', token);
+
+      // 确保有有效的 token
+      if (!token || !token.access_token) {
+        throw new Error('无法获取有效token');
+      }
+
+      // 发送获取手机号请求
+      const response = await app.request({
+        url: '/getPhoneNumber',
+        method: 'POST',
+        data: {
+          'token': token,
+          'code': e.detail.code
+        }
+      });
+
+      console.log('手机号获取结果:', response);
+      
+      if (response.errcode === 0) {
+        wx.setStorageSync('phoneNumber', response.phone_info.phoneNumber);
+        wx.showToast({
+          title: '登录成功',
+          icon: 'success',
+          duration: 1500
+        });
+        
+        setTimeout(() => {
+          this.goIndex();
+        }, 1500);
+      } else {
+        wx.showModal({
+          title: '错误',
+          content: response.errmsg || '手机号码获取异常！',
+          showCancel: false
+        });
+      }
+
+    } catch (error) {
+      console.error('获取手机号失败:', error);
+      wx.showToast({
+        title: '获取失败，请重试',
+        icon: 'none',
+        duration: 2000
+      });
+    } finally {
+      this.setData({ isLoggingIn: false });
+    }
+  },
+  goIndex() {
+    wx.switchTab({
+      url: '/pages/index/index'
     })
   }
 });
